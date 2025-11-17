@@ -1,0 +1,168 @@
+/* NEX Sidebar Styles */
+
+.nex-sidebar {
+  width: 260px;
+  height: 100vh;
+  background: linear-gradient(180deg, #0a0e1a 0%, #0f1419 100%);
+  border-right: 1px solid rgba(0, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 100;
+}
+
+.nex-sidebar-header {
+  padding: 24px 20px;
+  border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.nex-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nex-logo-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #00d9ff 0%, #0066ff 100%);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 20px;
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+}
+
+.nex-logo-text {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #00d9ff 0%, #ffffff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: 2px;
+}
+
+.nex-nav {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+}
+
+.nex-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.nex-nav-item:hover {
+  background: rgba(0, 217, 255, 0.08);
+  color: #00d9ff;
+}
+
+.nex-nav-item.active {
+  background: linear-gradient(135deg, rgba(0, 217, 255, 0.15) 0%, rgba(0, 102, 255, 0.15) 100%);
+  color: #00d9ff;
+  box-shadow: 0 2px 8px rgba(0, 217, 255, 0.2);
+}
+
+.nex-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 24px;
+  background: linear-gradient(180deg, #00d9ff 0%, #0066ff 100%);
+  border-radius: 0 2px 2px 0;
+}
+
+.nex-nav-icon {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+  flex-shrink: 0;
+}
+
+.nex-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid rgba(0, 255, 255, 0.1);
+}
+
+.nex-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.nex-user:hover {
+  background: rgba(0, 217, 255, 0.08);
+}
+
+.nex-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #00d9ff 0%, #0066ff 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.nex-user-info {
+  flex: 1;
+}
+
+.nex-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin-bottom: 2px;
+}
+
+.nex-user-role {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Scrollbar Styling */
+.nex-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nex-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nex-nav::-webkit-scrollbar-thumb {
+  background: rgba(0, 217, 255, 0.2);
+  border-radius: 2px;
+}
+
+.nex-nav::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 217, 255, 0.3);
+}
