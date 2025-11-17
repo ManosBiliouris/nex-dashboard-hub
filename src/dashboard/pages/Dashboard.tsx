@@ -1,6 +1,32 @@
+import { useEffect, useState } from "react";
+import { getDashboardStats } from "../services/mockData";
+import { DashboardStats } from "../types";
+import VulnerabilityChart from "../components/charts/VulnerabilityChart";
+import ScanTrendChart from "../components/charts/ScanTrendChart";
 import "../styles/pages.css";
 
 const Dashboard = () => {
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      setLoading(true);
+      const data = await getDashboardStats();
+      setStats(data);
+      setLoading(false);
+    };
+    loadStats();
+  }, []);
+
+  if (loading || !stats) {
+    return (
+      <div className="nex-page">
+        <div className="nex-loading">Loading dashboard data...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="nex-page">
       <div className="nex-page-header">
@@ -16,7 +42,7 @@ const Dashboard = () => {
             </svg>
           </div>
           <div className="nex-stat-content">
-            <div className="nex-stat-value">24</div>
+            <div className="nex-stat-value">{stats.criticalIssues}</div>
             <div className="nex-stat-label">Critical Issues</div>
           </div>
         </div>
@@ -30,7 +56,7 @@ const Dashboard = () => {
             </svg>
           </div>
           <div className="nex-stat-content">
-            <div className="nex-stat-value">156</div>
+            <div className="nex-stat-value">{stats.activeScans}</div>
             <div className="nex-stat-label">Active Scans</div>
           </div>
         </div>
@@ -42,7 +68,7 @@ const Dashboard = () => {
             </svg>
           </div>
           <div className="nex-stat-content">
-            <div className="nex-stat-value">2,847</div>
+            <div className="nex-stat-value">{stats.totalAssets.toLocaleString()}</div>
             <div className="nex-stat-label">Total Assets</div>
           </div>
         </div>
@@ -54,7 +80,7 @@ const Dashboard = () => {
             </svg>
           </div>
           <div className="nex-stat-content">
-            <div className="nex-stat-value">98.2%</div>
+            <div className="nex-stat-value">{stats.securityScore}%</div>
             <div className="nex-stat-label">Security Score</div>
           </div>
         </div>
@@ -62,24 +88,13 @@ const Dashboard = () => {
 
       <div className="nex-content-grid">
         <div className="nex-card">
-          <h3 className="nex-card-title">Recent Vulnerabilities</h3>
-          <div className="nex-empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeWidth="2"/>
-            </svg>
-            <p>No recent vulnerabilities detected</p>
-          </div>
+          <h3 className="nex-card-title">Vulnerability Trends</h3>
+          <VulnerabilityChart data={stats.vulnerabilityTrend} />
         </div>
 
         <div className="nex-card">
           <h3 className="nex-card-title">Scan Activity</h3>
-          <div className="nex-empty-state">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <circle cx="12" cy="12" r="10" strokeWidth="2"/>
-              <path d="M12 6v6l4 2" strokeWidth="2"/>
-            </svg>
-            <p>No active scans running</p>
-          </div>
+          <ScanTrendChart data={stats.scansTrend} />
         </div>
       </div>
     </div>

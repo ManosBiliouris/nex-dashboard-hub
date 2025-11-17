@@ -1,0 +1,156 @@
+/* NEX Charts Styles */
+
+.nex-chart {
+  width: 100%;
+  height: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Bar Chart */
+.nex-chart-grid {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 0 8px;
+}
+
+.nex-chart-bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.nex-chart-bar-stack {
+  width: 100%;
+  max-width: 60px;
+  display: flex;
+  flex-direction: column-reverse;
+  border-radius: 6px 6px 0 0;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 217, 255, 0.15);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.nex-chart-bar-stack:hover {
+  box-shadow: 0 4px 12px rgba(0, 217, 255, 0.3);
+  transform: translateY(-2px);
+}
+
+.nex-chart-segment {
+  transition: all 0.3s ease;
+}
+
+.nex-chart-segment.critical {
+  background: linear-gradient(180deg, #ff3b5c 0%, #dc267f 100%);
+}
+
+.nex-chart-segment.high {
+  background: linear-gradient(180deg, #ffc107 0%, #ff9800 100%);
+}
+
+.nex-chart-segment.medium {
+  background: linear-gradient(180deg, #ffeb3b 0%, #ffc107 100%);
+}
+
+.nex-chart-segment.low {
+  background: linear-gradient(180deg, #4caf50 0%, #2e7d32 100%);
+}
+
+.nex-chart-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+/* Line Chart */
+.nex-line-chart {
+  width: 100%;
+  height: 180px;
+  overflow: visible;
+}
+
+.nex-chart-point {
+  cursor: pointer;
+  transition: r 0.2s ease;
+}
+
+.nex-chart-point:hover {
+  r: 3;
+}
+
+.nex-chart-x-labels {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 8px;
+}
+
+/* Legend */
+.nex-chart-legend {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: 12px;
+  background: rgba(0, 217, 255, 0.03);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 255, 0.08);
+}
+
+.nex-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nex-legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+}
+
+.nex-legend-dot.critical {
+  background: linear-gradient(135deg, #ff3b5c 0%, #dc267f 100%);
+}
+
+.nex-legend-dot.high {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+}
+
+.nex-legend-dot.medium {
+  background: linear-gradient(135deg, #ffeb3b 0%, #ffc107 100%);
+}
+
+.nex-legend-dot.low {
+  background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .nex-chart {
+    height: 200px;
+  }
+
+  .nex-chart-grid {
+    gap: 6px;
+  }
+
+  .nex-chart-bar-stack {
+    max-width: 40px;
+  }
+
+  .nex-chart-legend {
+    gap: 12px;
+  }
+
+  .nex-legend-item {
+    font-size: 11px;
+  }
+}
