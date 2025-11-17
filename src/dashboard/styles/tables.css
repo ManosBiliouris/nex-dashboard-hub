@@ -1,0 +1,538 @@
+/* NEX Tables Styles */
+
+.nex-table-container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 255, 0.1);
+  background: linear-gradient(135deg, rgba(15, 20, 25, 0.6) 0%, rgba(10, 14, 26, 0.8) 100%);
+}
+
+.nex-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.nex-table thead {
+  background: rgba(0, 217, 255, 0.05);
+  border-bottom: 1px solid rgba(0, 255, 255, 0.15);
+}
+
+.nex-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+}
+
+.nex-table tbody tr {
+  border-bottom: 1px solid rgba(0, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.nex-table tbody tr:hover {
+  background: rgba(0, 217, 255, 0.05);
+}
+
+.nex-table tbody tr.clickable {
+  cursor: pointer;
+}
+
+.nex-table tbody tr.clickable:hover {
+  background: rgba(0, 217, 255, 0.1);
+}
+
+.nex-table td {
+  padding: 16px 20px;
+  color: rgba(255, 255, 255, 0.85);
+  vertical-align: middle;
+}
+
+/* Cell Styles */
+.nex-cell-primary {
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 4px;
+}
+
+.nex-cell-secondary {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.nex-cell-secondary.nex-truncate {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nex-mono {
+  font-family: 'Courier New', monospace;
+  font-size: 13px;
+  color: #00d9ff;
+}
+
+.nex-date {
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.nex-text-muted {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Badges */
+.nex-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.nex-badge.web {
+  background: rgba(0, 217, 255, 0.15);
+  color: #00d9ff;
+  border: 1px solid rgba(0, 217, 255, 0.3);
+}
+
+.nex-badge.api {
+  background: rgba(124, 77, 255, 0.15);
+  color: #7c4dff;
+  border: 1px solid rgba(124, 77, 255, 0.3);
+}
+
+.nex-badge.database {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.nex-badge.server {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.nex-badge.network {
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.nex-badge.port,
+.nex-badge.vulnerability,
+.nex-badge.osint,
+.nex-badge.full {
+  background: rgba(156, 39, 176, 0.15);
+  color: #9c27b0;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+/* Status */
+.nex-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.nex-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.nex-status.online::before {
+  background: #4caf50;
+  box-shadow: 0 0 8px #4caf50;
+}
+
+.nex-status.online {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+}
+
+.nex-status.offline::before {
+  background: #f44336;
+}
+
+.nex-status.offline {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+}
+
+.nex-status.unknown::before {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.nex-status.unknown {
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Risk Score */
+.nex-risk-score {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nex-risk-value {
+  font-weight: 700;
+  font-size: 16px;
+  min-width: 32px;
+}
+
+.nex-risk-value.critical {
+  color: #ff3b5c;
+}
+
+.nex-risk-value.high {
+  color: #ffc107;
+}
+
+.nex-risk-value.medium {
+  color: #ffeb3b;
+}
+
+.nex-risk-value.low {
+  color: #4caf50;
+}
+
+.nex-risk-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(0, 217, 255, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  min-width: 60px;
+}
+
+.nex-risk-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.nex-risk-fill.critical {
+  background: linear-gradient(90deg, #ff3b5c 0%, #dc267f 100%);
+}
+
+.nex-risk-fill.high {
+  background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+}
+
+.nex-risk-fill.medium {
+  background: linear-gradient(90deg, #ffeb3b 0%, #ffc107 100%);
+}
+
+.nex-risk-fill.low {
+  background: linear-gradient(90deg, #4caf50 0%, #2e7d32 100%);
+}
+
+/* Count */
+.nex-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  padding: 4px 8px;
+  background: rgba(0, 217, 255, 0.15);
+  border: 1px solid rgba(0, 217, 255, 0.3);
+  border-radius: 6px;
+  font-weight: 600;
+  color: #00d9ff;
+}
+
+.nex-count.high {
+  background: rgba(255, 59, 92, 0.15);
+  border-color: rgba(255, 59, 92, 0.3);
+  color: #ff3b5c;
+}
+
+/* Severity */
+.nex-severity {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.nex-severity svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+.nex-severity.critical {
+  background: rgba(255, 59, 92, 0.15);
+  color: #ff3b5c;
+  border: 1px solid rgba(255, 59, 92, 0.3);
+}
+
+.nex-severity.high {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.nex-severity.medium {
+  background: rgba(255, 235, 59, 0.15);
+  color: #ffeb3b;
+  border: 1px solid rgba(255, 235, 59, 0.3);
+}
+
+.nex-severity.low {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.nex-severity.info {
+  background: rgba(33, 150, 243, 0.15);
+  color: #2196f3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+/* CVSS Score */
+.nex-cvss {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.nex-cvss.critical {
+  background: rgba(255, 59, 92, 0.2);
+  color: #ff3b5c;
+  border: 2px solid #ff3b5c;
+}
+
+.nex-cvss.high {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 2px solid #ffc107;
+}
+
+.nex-cvss.medium {
+  background: rgba(255, 235, 59, 0.2);
+  color: #ffeb3b;
+  border: 2px solid #ffeb3b;
+}
+
+.nex-cvss.low {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border: 2px solid #4caf50;
+}
+
+/* Source */
+.nex-source {
+  font-size: 12px;
+  font-weight: 600;
+  color: #00d9ff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Vulnerability Status */
+.nex-status-vuln {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.nex-status-vuln.open {
+  background: rgba(255, 59, 92, 0.15);
+  color: #ff3b5c;
+  border: 1px solid rgba(255, 59, 92, 0.3);
+}
+
+.nex-status-vuln.in-progress {
+  background: rgba(255, 193, 7, 0.15);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.nex-status-vuln.resolved {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.nex-status-vuln.false-positive {
+  background: rgba(158, 158, 158, 0.15);
+  color: #9e9e9e;
+  border: 1px solid rgba(158, 158, 158, 0.3);
+}
+
+/* Scan Status */
+.nex-scan-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.nex-scan-status.running {
+  background: rgba(0, 217, 255, 0.15);
+  color: #00d9ff;
+  border: 1px solid rgba(0, 217, 255, 0.3);
+}
+
+.nex-scan-status.completed {
+  background: rgba(76, 175, 80, 0.15);
+  color: #4caf50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.nex-scan-status.failed {
+  background: rgba(244, 67, 54, 0.15);
+  color: #f44336;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+.nex-scan-status.scheduled {
+  background: rgba(156, 39, 176, 0.15);
+  color: #9c27b0;
+  border: 1px solid rgba(156, 39, 176, 0.3);
+}
+
+.nex-spinner {
+  width: 14px;
+  height: 14px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Progress Bar */
+.nex-progress-bar {
+  position: relative;
+  width: 100%;
+  max-width: 120px;
+  height: 20px;
+  background: rgba(0, 217, 255, 0.1);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.nex-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #00d9ff 0%, #0066ff 100%);
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.nex-progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Findings */
+.nex-findings {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.nex-finding-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.nex-finding-badge.critical {
+  background: #ff3b5c;
+  color: #ffffff;
+}
+
+.nex-finding-badge.high {
+  background: #ffc107;
+  color: #1a1a1a;
+}
+
+.nex-finding-badge.medium {
+  background: #ffeb3b;
+  color: #1a1a1a;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .nex-table-container {
+    border-radius: 8px;
+  }
+
+  .nex-table {
+    font-size: 13px;
+  }
+
+  .nex-table th,
+  .nex-table td {
+    padding: 12px 16px;
+  }
+
+  .nex-cell-secondary.nex-truncate {
+    max-width: 200px;
+  }
+}
+
+@media (max-width: 768px) {
+  .nex-table th,
+  .nex-table td {
+    padding: 10px 12px;
+  }
+
+  .nex-risk-bar {
+    min-width: 40px;
+  }
+
+  .nex-cell-secondary.nex-truncate {
+    max-width: 150px;
+  }
+}

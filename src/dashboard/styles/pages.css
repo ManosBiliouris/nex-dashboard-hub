@@ -411,6 +411,14 @@
   border-top: 1px solid rgba(0, 255, 255, 0.1);
 }
 
+/* Loading */
+.nex-loading {
+  padding: 60px 20px;
+  text-align: center;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .nex-content-grid {
