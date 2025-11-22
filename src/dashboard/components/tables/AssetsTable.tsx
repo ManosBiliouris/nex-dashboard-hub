@@ -1,5 +1,5 @@
-import { Asset } from '../../types';
-import '../../styles/tables.css';
+import { Asset } from "../../types";
+import "../../styles/tables.css";
 
 interface Props {
   assets: Asset[];
@@ -8,10 +8,10 @@ interface Props {
 
 const AssetsTable = ({ assets, onAssetClick }: Props) => {
   const getRiskColor = (score: number) => {
-    if (score >= 80) return 'critical';
-    if (score >= 60) return 'high';
-    if (score >= 40) return 'medium';
-    return 'low';
+    if (score >= 80) return "critical";
+    if (score >= 60) return "high";
+    if (score >= 40) return "medium";
+    return "low";
   };
 
   return (
@@ -32,10 +32,10 @@ const AssetsTable = ({ assets, onAssetClick }: Props) => {
         </thead>
         <tbody>
           {assets.map((asset) => (
-            <tr 
-              key={asset.id} 
+            <tr
+              key={asset.id}
               onClick={() => onAssetClick?.(asset)}
-              className={onAssetClick ? 'clickable' : ''}
+              className={onAssetClick ? "clickable" : ""}
             >
               <td>
                 <div className="nex-cell-primary">{asset.name}</div>
@@ -50,7 +50,7 @@ const AssetsTable = ({ assets, onAssetClick }: Props) => {
               </td>
               <td className="nex-mono">{asset.ip}</td>
               <td className="nex-mono">{asset.port}</td>
-              <td>{asset.service || '-'}</td>
+              <td>{asset.service || "-"}</td>
               <td>
                 <span className={`nex-status ${asset.status}`}>
                   {asset.status}
@@ -58,28 +58,38 @@ const AssetsTable = ({ assets, onAssetClick }: Props) => {
               </td>
               <td>
                 <div className="nex-risk-score">
-                  <span className={`nex-risk-value ${getRiskColor(asset.riskScore)}`}>
+                  <span
+                    className={`nex-risk-value ${getRiskColor(
+                      asset.riskScore
+                    )}`}
+                  >
                     {asset.riskScore}
                   </span>
                   <div className="nex-risk-bar">
-                    <div 
-                      className={`nex-risk-fill ${getRiskColor(asset.riskScore)}`}
+                    <div
+                      className={`nex-risk-fill ${getRiskColor(
+                        asset.riskScore
+                      )}`}
                       style={{ width: `${asset.riskScore}%` }}
                     />
                   </div>
                 </div>
               </td>
               <td>
-                <span className={`nex-count ${asset.vulnerabilityCount > 10 ? 'high' : 'normal'}`}>
+                <span
+                  className={`nex-count ${
+                    asset.vulnerabilityCount > 10 ? "high" : "normal"
+                  }`}
+                >
                   {asset.vulnerabilityCount}
                 </span>
               </td>
               <td className="nex-date">
-                {new Date(asset.lastSeen).toLocaleString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit',
+                {new Date(asset.lastSeen).toLocaleString("en-US", {
+                  month: "short",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
                 })}
               </td>
             </tr>

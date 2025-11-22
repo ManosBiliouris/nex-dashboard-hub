@@ -1,0 +1,56 @@
+.nex-asset-details {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Title Section */
+.nex-asset-title {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 0.3rem;
+}
+
+.nex-asset-subtitle {
+  font-size: 1rem;
+  opacity: 0.7;
+  margin-bottom: 1rem;
+}
+
+/* Card Layout */
+.nex-asset-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.8rem;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Section Title */
+.nex-section-title {
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 1.2rem;
+}
+
+/* Grid Layout */
+.nex-asset-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(220px, 1fr));
+  gap: 1.2rem;
+  color: #e6e6e6;
+}
+
+.nex-asset-field b {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+/* Back Button */
+.nex-back-btn {
+  margin-top: 1rem;
+}
+    
