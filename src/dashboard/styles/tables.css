@@ -49,7 +49,7 @@
 
 .nex-table td {
   padding: 16px 20px;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.851);
   vertical-align: middle;
 }
 
@@ -535,4 +535,58 @@
   .nex-cell-secondary.nex-truncate {
     max-width: 150px;
   }
+}
+
+.nex-findings {
+  display: flex;
+  gap: 6px;
+}
+
+.sev-critical {
+  background: #ef4444;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.sev-high {
+  background: #f59e0b;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.sev-medium {
+  background: #eab308;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.sev-low {
+  background: #22c55e;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.nex-progress-bar {
+  width: 100%;
+  height: 10px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.nex-progress-fill {
+  background: #00d9ff;
+  height: 100%;
+  font-size: 12px;
+  text-align: center;
+  line-height: 10px;
+  color: #000;
 }

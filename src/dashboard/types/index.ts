@@ -38,22 +38,37 @@ export interface Vulnerability {
 export interface Scan {
   id: string;
   name: string;
-  type: 'port' | 'vulnerability' | 'osint' | 'full';
-  status: ScanStatus;
-  targetAssets: string[]; // asset IDs
-  source: 'shodan' | 'fofa' | 'zoomeye' | 'manual' | 'scheduled';
-  startedAt: string;
-  completedAt?: string;
-  duration?: number; // in seconds
-  findingsCount: {
+
+  // FULL | OSINT | PORT
+  type: string;
+
+  // completed | running | failed | scheduled
+  status: string;
+
+  // SHODAN | MANUAL | SCHEDULED
+  source: string;
+
+  // number of target assets (0–5)
+  targets: number;
+
+  // 0–100 progress bar
+  progress: number;
+
+  // Findings counts shown in red/orange/yellow/green badges
+  findings: {
     critical: number;
     high: number;
     medium: number;
     low: number;
-    info: number;
   };
-  progress?: number; // 0-100
+
+  // "1h 03m" etc.
+  duration: string;
+
+  // ISO datestamp
+  startedAt: string;
 }
+
 
 export interface DashboardStats {
   totalAssets: number;
