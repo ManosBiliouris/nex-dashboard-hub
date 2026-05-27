@@ -4,70 +4,82 @@ import AssetsTable from "../components/tables/AssetsTable";
 import "../styles/pages.css";
 import { useNavigate } from "react-router-dom";
 
+interface RawAsset {
+  id: string;
+  ip: string;
+  port: number;
+  org: string;
+  service: string;
+  status: "online" | "offline" | "unknown";
+  risk_score: number;
+  risk_level: string;
+  vulnerabilityCount: number;
+  source: string;
+}
+
 const Assets = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<string>("all");
-  const [city, setCity] = useState<string>("Ioannina");
+  const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();
 
-  // ---------------------------------------
-  // LOAD ASSETS (Mock City Scan)
-  // ---------------------------------------
   const loadAssets = async () => {
     setLoading(true);
-
     try {
-      const res = await fetch(
-        `http://127.0.0.1:8000/api/mock/scan?city=${city}`
-      );
+      const res = await fetch("http://127.0.0.1:8000/assets/");
+      const data: RawAsset[] = await res.json();
 
-      const data = await res.json();
-
-      // Backend returns: { city: "...", assets: [...] }
-      const formatted: Asset[] = data.assets.map((d: Asset) => ({
+      const formatted: Asset[] = data.map((d) => ({
         id: d.id,
-        name: d.name,
-        type: d.type,
+        name: d.org || d.ip,
+        type: "server",
         ip: d.ip,
-        domain: d.domain,
         port: d.port,
         service: d.service,
-        location: d.location,
         status: d.status,
-        riskScore: d.riskScore,
+        riskScore: d.risk_score,
         vulnerabilityCount: d.vulnerabilityCount,
-        lastSeen: d.lastSeen,
-        tags: d.tags,
+        lastSeen: new Date().toISOString(),
+        tags: [d.source, d.risk_level],
       }));
 
       setAssets(formatted);
     } catch (error) {
       console.error("API error:", error);
     }
-
     setLoading(false);
   };
 
-  // Load once on page load
+  const runScan = async () => {
+    if (!query.trim()) return;
+    setLoading(true);
+    try {
+      await fetch("http://127.0.0.1:8000/scan/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ target: query }),
+      });
+      await loadAssets();
+    } catch (error) {
+      console.error("Scan error:", error);
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     loadAssets();
   }, []);
 
-  // ---------------------------------------
-  // FILTER LOGIC
-  // ---------------------------------------
   const filteredAssets = assets.filter((asset) => {
-    if (filter === "all") return true;
     if (filter === "online") return asset.status === "online";
     if (filter === "offline") return asset.status === "offline";
-    if (filter === "high-risk") return asset.riskScore >= 70;
+    if (filter === "high-risk") return asset.riskScore >= 50;
     return true;
   });
 
   return (
     <div className="nex-page">
-      {/* HEADER */}
       <div className="nex-page-header">
         <h2 className="nex-page-heading">Assets</h2>
         <p className="nex-page-description">
@@ -75,90 +87,46 @@ const Assets = () => {
         </p>
       </div>
 
-      {/* SCAN CITY INPUT */}
-      <div
-        className="nex-card"
-        style={{
-          padding: "1rem",
-          marginBottom: "1rem",
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-        }}
-      >
+      <div className="nex-card" style={{ padding: "1rem", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
         <input
           className="nex-input"
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Enter city to scan (mock)"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder='e.g. "εκτεθειμένοι Redis servers στην Ελλάδα"'
           style={{ flex: "1" }}
+          onKeyDown={(e) => e.key === "Enter" && runScan()}
         />
-
-        <button className="nex-btn-primary" onClick={loadAssets}>
-          Scan City
+        <button className="nex-btn-primary" onClick={runScan} disabled={loading}>
+          {loading ? "Scanning..." : "Run Scan"}
+        </button>
+        <button className="nex-btn-secondary" onClick={loadAssets}>
+          Refresh
         </button>
       </div>
 
-      {/* FILTERS */}
       <div className="nex-toolbar">
         <div className="nex-filters">
-          <button
-            className={`nex-btn-secondary ${filter === "all" ? "active" : ""}`}
-            onClick={() => setFilter("all")}
-          >
-            All Assets ({assets.length})
-          </button>
-
-          <button
-            className={`nex-btn-secondary ${
-              filter === "online" ? "active" : ""
-            }`}
-            onClick={() => setFilter("online")}
-          >
-            Online
-          </button>
-
-          <button
-            className={`nex-btn-secondary ${
-              filter === "offline" ? "active" : ""
-            }`}
-            onClick={() => setFilter("offline")}
-          >
-            Offline
-          </button>
-
-          <button
-            className={`nex-btn-secondary ${
-              filter === "high-risk" ? "active" : ""
-            }`}
-            onClick={() => setFilter("high-risk")}
-          >
-            High Risk
-          </button>
+          {["all", "online", "offline", "high-risk"].map((f) => (
+            <button
+              key={f}
+              className={`nex-btn-secondary ${filter === f ? "active" : ""}`}
+              onClick={() => setFilter(f)}
+            >
+              {f === "all" ? `All Assets (${assets.length})` : f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* TABLE OR EMPTY */}
       {loading ? (
-        <div className="nex-card">
-          <div className="nex-loading">Loading assets...</div>
-        </div>
+        <div className="nex-card"><div className="nex-loading">Loading assets...</div></div>
       ) : filteredAssets.length > 0 ? (
-        <AssetsTable
-          assets={filteredAssets}
-          onAssetClick={(asset) => navigate(`/assets/${asset.id}`)}
-        />
+        <AssetsTable assets={filteredAssets} onAssetClick={(asset) => navigate(`/assets/${asset.id}`)} />
       ) : (
         <div className="nex-card">
           <div className="nex-empty-state large">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path
-                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-                strokeWidth="2"
-              />
-            </svg>
             <h3>No Assets Found</h3>
-            <p>No assets match the current filter</p>
+            <p>Run a scan to discover assets</p>
           </div>
         </div>
       )}

@@ -8,9 +8,9 @@ interface Props {
 
 const AssetsTable = ({ assets, onAssetClick }: Props) => {
   const getRiskColor = (score: number) => {
-    if (score >= 80) return "critical";
-    if (score >= 60) return "high";
-    if (score >= 40) return "medium";
+    if (score >= 75) return "critical";
+    if (score >= 50) return "high";
+    if (score >= 25) return "medium";
     return "low";
   };
 

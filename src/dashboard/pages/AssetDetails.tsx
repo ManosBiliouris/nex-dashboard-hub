@@ -1,240 +1,168 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { Asset, Vulnerability } from "../types";
-
 import "../styles/pages.css";
 import "../styles/tables.css";
+
+interface AssetDetail {
+  id: string;
+  ip: string;
+  port: number;
+  org: string;
+  service: string;
+  status: "online" | "offline" | "unknown";
+  risk_score: number;
+  risk_level: string;
+  source: string;
+  vulnerabilityCount: number;
+}
+
+interface VulnDetail {
+  id: string;
+  title: string;
+  description: string;
+  severity: string;
+  status: string;
+  source: string;
+}
 
 const AssetDetails = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  const [asset, setAsset] = useState<Asset | null>(null);
-  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [asset, setAsset] = useState<AssetDetail | null>(null);
+  const [vulns, setVulns] = useState<VulnDetail[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
       try {
-        const assetRes = await fetch(
-          `http://127.0.0.1:8000/api/mock/asset?id=${id}`
-        );
-        const assetData = await assetRes.json();
-        setAsset(assetData.asset);
+        const assetRes = await fetch(`http://127.0.0.1:8000/assets/${id}`);
+        const assetData: AssetDetail = await assetRes.json();
+        setAsset(assetData);
 
-        const vulnRes = await fetch(
-          `http://127.0.0.1:8000/api/mock/vulnerabilities?asset_id=${id}`
-        );
-        const vulnData = await vulnRes.json();
-        setVulnerabilities(vulnData.vulnerabilities);
+        const vulnRes = await fetch("http://127.0.0.1:8000/vulnerabilities/");
+        const vulnData: VulnDetail[] = await vulnRes.json();
+        setVulns(vulnData.filter((v) => v.id.includes(id ?? "")));
       } catch (error) {
         console.error("AssetDetails Error:", error);
       }
       setLoading(false);
     };
-
     loadData();
   }, [id]);
 
-  if (loading || !asset) {
+  if (loading) {
+    return <div className="nex-page"><div className="nex-loading">Loading asset data...</div></div>;
+  }
+
+  if (!asset || "error" in (asset as object)) {
     return (
       <div className="nex-page">
-        <div className="nex-loading">Loading asset data...</div>
+        <div className="nex-page-header">
+          <button className="nex-btn-secondary" onClick={() => navigate("/assets")}>← Back</button>
+        </div>
+        <div className="nex-card">
+          <div className="nex-empty-state large">
+            <h3>Asset Not Found</h3>
+            <p>This asset may no longer exist. Run a new scan.</p>
+          </div>
+        </div>
       </div>
     );
   }
 
+  const getRiskColor = (level: string) => {
+    if (level === "critical") return "#ef4444";
+    if (level === "high") return "#f97316";
+    if (level === "medium") return "#eab308";
+    return "#22c55e";
+  };
+
   return (
     <div className="nex-page">
-      {/* Header */}
-      <div className="nex-page-header">
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-          }}
-        >
-          <button
-            className="nex-btn-secondary"
-            onClick={() => navigate("/assets")}
-          >
-            ← Back
-          </button>
-
-          <div>
-            <h2 className="nex-page-heading">{asset.name}</h2>
-            <p className="nex-page-description">
-              Detailed asset information and security analysis
-            </p>
-          </div>
-        </div>
-
-        <span className={`nex-status ${asset.status}`}>
-          {asset.status.toUpperCase()}
-        </span>
-      </div>
-
-      {/* Risk Assessment */}
-      <div
-        className="nex-card"
-        style={{ padding: "24px", marginBottom: "32px" }}
-      >
-        <h3 className="nex-card-title">Risk Assessment</h3>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-          }}
-        >
-          <span
-            style={{
-              fontSize: "48px",
-              fontWeight: 700,
-              color: "rgba(255, 255, 255)",
-            }}
-          >
-            {asset.riskScore}
-          </span>
-
-          <div className="nex-count normal">
-            {vulnerabilities.length} Vulnerabilities
-          </div>
-        </div>
-        <div className="nex-risk-score">
-          <div
-            className="nex-risk-fill medium"
-            style={{ width: `${asset.riskScore}%` }}
-          />
-        </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            fontSize: "14px",
-            opacity: 0.7,
-          }}
-        >
-          <span>Low Risk</span>
-          <span>High Risk</span>
+      <div className="nex-page-header" style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+        <button className="nex-btn-secondary" onClick={() => navigate("/assets")}>
+          ← Back
+        </button>
+        <div>
+          <h2 className="nex-page-heading">{asset.org || asset.ip}</h2>
+          <p className="nex-page-description">{asset.ip}:{asset.port} — {asset.service}</p>
         </div>
       </div>
 
-      {/* Overview + Network + Last Seen */}
-      <div className="nex-content-grid">
-        <div className="nex-card">
-          <h3 className="nex-card-title">Asset Information</h3>
-
-          <table className="nex-table no-hover">
-            <tbody>
-              <tr>
-                <td>ID:</td>
-                <td className="nex-mono">{asset.id}</td>
-              </tr>
-              <tr>
-                <td>Type:</td>
-                <td>{asset.type.toUpperCase()}</td>
-              </tr>
-              <tr>
-                <td>IP Address:</td>
-                <td className="nex-mono">{asset.ip}</td>
-              </tr>
-              <tr>
-                <td>Port:</td>
-                <td className="nex-mono">{asset.port}</td>
-              </tr>
-            </tbody>
-          </table>
+      {/* Info Cards */}
+      <div className="nex-stats-grid" style={{ marginBottom: "1.5rem" }}>
+        <div className="nex-stat-card">
+          <div className="nex-stat-content">
+            <div className="nex-stat-value" style={{ color: getRiskColor(asset.risk_level) }}>
+              {asset.risk_score}
+            </div>
+            <div className="nex-stat-label">Risk Score</div>
+          </div>
         </div>
-
-        <div className="nex-card">
-          <h3 className="nex-card-title">Network Information</h3>
-
-          <table className="nex-table no-hover">
-            <tbody>
-              {asset.domain && (
-                <tr>
-                  <td>Domain:</td>
-                  <td>{asset.domain}</td>
-                </tr>
-              )}
-
-              <tr>
-                <td>Service:</td>
-                <td>{asset.service || "Unknown"}</td>
-              </tr>
-
-              {asset.location && (
-                <tr>
-                  <td>Location:</td>
-                  <td>{asset.location}</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="nex-stat-card">
+          <div className="nex-stat-content">
+            <div className="nex-stat-value" style={{ color: getRiskColor(asset.risk_level), textTransform: "capitalize" }}>
+              {asset.risk_level}
+            </div>
+            <div className="nex-stat-label">Risk Level</div>
+          </div>
         </div>
-
-        <div className="nex-card">
-          <h3 className="nex-card-title">Last Activity</h3>
-
-          <table className="nex-table no-hover">
-            <tbody>
-              <tr>
-                <td>Last Seen:</td>
-                <td>{new Date(asset.lastSeen).toLocaleString()}</td>
-              </tr>
-
-              {asset.tags?.length > 0 && (
-                <tr>
-                  <td>Tags:</td>
-                  <td>
-                    {asset.tags.map((t) => (
-                      <span key={t} className="nex-badge">
-                        {t}
-                      </span>
-                    ))}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        <div className="nex-stat-card">
+          <div className="nex-stat-content">
+            <div className="nex-stat-value">{asset.port}</div>
+            <div className="nex-stat-label">Port</div>
+          </div>
         </div>
+        <div className="nex-stat-card">
+          <div className="nex-stat-content">
+            <div className="nex-stat-value" style={{ fontSize: "1rem", textTransform: "uppercase" }}>
+              {asset.source}
+            </div>
+            <div className="nex-stat-label">Source</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Details */}
+      <div className="nex-card" style={{ marginBottom: "1.5rem", padding: "1.5rem" }}>
+        <h3 className="nex-card-title">Asset Information</h3>
+        <table className="nex-table" style={{ marginTop: "1rem" }}>
+          <tbody>
+            <tr><td style={{ color: "var(--text-muted)" }}>IP Address</td><td className="nex-mono">{asset.ip}</td></tr>
+            <tr><td style={{ color: "var(--text-muted)" }}>Port</td><td className="nex-mono">{asset.port}</td></tr>
+            <tr><td style={{ color: "var(--text-muted)" }}>Service</td><td>{asset.service || "-"}</td></tr>
+            <tr><td style={{ color: "var(--text-muted)" }}>Organization</td><td>{asset.org || "-"}</td></tr>
+            <tr><td style={{ color: "var(--text-muted)" }}>Status</td><td><span className={`nex-status status-${asset.status}`}>{asset.status}</span></td></tr>
+            <tr><td style={{ color: "var(--text-muted)" }}>Discovered via</td><td style={{ textTransform: "uppercase" }}>{asset.source}</td></tr>
+          </tbody>
+        </table>
       </div>
 
       {/* Vulnerabilities */}
-      <div className="nex-card">
-        <h3 className="nex-card-title">Vulnerabilities</h3>
-
-        {vulnerabilities.length === 0 ? (
-          <p style={{ opacity: 0.6 }}>No vulnerabilities found.</p>
+      <div className="nex-card" style={{ padding: "1.5rem" }}>
+        <h3 className="nex-card-title">Vulnerabilities ({vulns.length})</h3>
+        {vulns.length === 0 ? (
+          <div className="nex-empty-state" style={{ padding: "2rem" }}>
+            <p>No vulnerabilities detected for this asset.</p>
+          </div>
         ) : (
-          <table className="nex-table">
+          <table className="nex-table" style={{ marginTop: "1rem" }}>
             <thead>
               <tr>
                 <th>Title</th>
                 <th>Severity</th>
-                <th>CVSS</th>
                 <th>Status</th>
-                <th>Discovered</th>
+                <th>Source</th>
               </tr>
             </thead>
             <tbody>
-              {vulnerabilities.map((v) => (
+              {vulns.map((v) => (
                 <tr key={v.id}>
                   <td>{v.title}</td>
-
-                  <td>
-                    <span className={`nex-badge ${v.severity}`}>
-                      {v.severity.toUpperCase()}
-                    </span>
-                  </td>
-
-                  <td>{v.cvssScore}</td>
-
-                  <td>{v.status}</td>
-
-                  <td>{new Date(v.discoveredAt).toLocaleDateString()}</td>
+                  <td><span className={`nex-badge ${v.severity}`}>{v.severity}</span></td>
+                  <td><span className={`nex-status`}>{v.status}</span></td>
+                  <td>{v.source}</td>
                 </tr>
               ))}
             </tbody>

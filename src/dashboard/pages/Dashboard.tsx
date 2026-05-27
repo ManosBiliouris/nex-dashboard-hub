@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { getDashboardStats } from "../services/mockData";
 import { DashboardStats } from "../types";
 import VulnerabilityChart from "../components/charts/VulnerabilityChart";
 import ScanTrendChart from "../components/charts/ScanTrendChart";
 import "../styles/pages.css";
+
+interface RawAsset {
+  risk_level: string;
+  risk_score: number;
+}
+
+interface RawVulnerability {
+  severity: string;
+}
 
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -12,10 +20,74 @@ const Dashboard = () => {
   useEffect(() => {
     const loadStats = async () => {
       setLoading(true);
-      const data = await getDashboardStats();
-      setStats(data);
+      try {
+        const [assetsRes, vulnsRes] = await Promise.all([
+          fetch("http://127.0.0.1:8000/assets/"),
+          fetch("http://127.0.0.1:8000/vulnerabilities/"),
+        ]);
+
+        const assets: RawAsset[] = await assetsRes.json();
+        const vulns: RawVulnerability[] = await vulnsRes.json();
+
+        const totalAssets = assets.length;
+        const criticalIssues = assets.filter((a) => a.risk_level === "critical").length;
+        const totalVulnerabilities = vulns.length;
+
+        // Security score: 100 - penalty per risk level
+        const penalty = assets.reduce((acc, a) => {
+          if (a.risk_level === "critical") return acc + 4;
+          if (a.risk_level === "high") return acc + 2;
+          if (a.risk_level === "medium") return acc + 1;
+          return acc;
+        }, 0);
+        const securityScore = Math.max(0, Math.round(100 - (penalty / Math.max(totalAssets, 1)) * 10));
+
+        // Build trend data (last 7 days mock progression based on real totals)
+        const today = new Date();
+        const scansTrend = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(today);
+          d.setDate(d.getDate() - (6 - i));
+          return {
+            date: d.toISOString().split("T")[0],
+            count: Math.max(1, Math.floor(totalAssets * (0.5 + i * 0.08))),
+          };
+        });
+
+        const criticalCount = vulns.filter((v) => v.severity === "critical").length;
+        const highCount = vulns.filter((v) => v.severity === "high").length;
+        const mediumCount = vulns.filter((v) => v.severity === "medium").length;
+        const lowCount = vulns.filter((v) => v.severity === "low").length;
+
+        const vulnerabilityTrend = Array.from({ length: 7 }, (_, i) => {
+          const d = new Date(today);
+          d.setDate(d.getDate() - (6 - i));
+          const factor = 0.7 + i * 0.05;
+          return {
+            date: d.toISOString().split("T")[0],
+            critical: Math.round(criticalCount * factor),
+            high: Math.round(highCount * factor),
+            medium: Math.round(mediumCount * factor),
+            low: Math.round(lowCount * factor),
+          };
+        });
+
+        setStats({
+          totalAssets,
+          activeScans: 0,
+          totalVulnerabilities,
+          criticalIssues,
+          securityScore,
+          assetsChange: 0,
+          vulnerabilitiesChange: 0,
+          scansTrend,
+          vulnerabilityTrend,
+        });
+      } catch (error) {
+        console.error("Dashboard load error:", error);
+      }
       setLoading(false);
     };
+
     loadStats();
   }, []);
 
@@ -56,8 +128,8 @@ const Dashboard = () => {
             </svg>
           </div>
           <div className="nex-stat-content">
-            <div className="nex-stat-value">{stats.activeScans}</div>
-            <div className="nex-stat-label">Active Scans</div>
+            <div className="nex-stat-value">{stats.totalVulnerabilities}</div>
+            <div className="nex-stat-label">Total Vulnerabilities</div>
           </div>
         </div>
 

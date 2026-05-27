@@ -1,26 +1,59 @@
 import { useEffect, useState } from "react";
-import { getVulnerabilities } from "../services/mockData";
 import { Vulnerability } from "../types";
 import VulnerabilitiesTable from "../components/tables/VulnerabilitiesTable";
 import "../styles/pages.css";
 
+interface RawVulnerability {
+  id: string;
+  cve?: string;
+  title: string;
+  description: string;
+  severity: "critical" | "high" | "medium" | "low" | "info";
+  cvssScore?: number;
+  asset_id: string;
+  status: "open" | "in-progress" | "resolved" | "false-positive";
+  source: string;
+  remediation?: string;
+}
+
 const Vulnerabilities = () => {
   const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<string>('all');
+  const [filter, setFilter] = useState<string>("all");
+
+  const loadVulnerabilities = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("http://127.0.0.1:8000/vulnerabilities/");
+      const data: RawVulnerability[] = await res.json();
+
+      const formatted: Vulnerability[] = data.map((v) => ({
+        id: v.id,
+        cve: v.cve,
+        title: v.title,
+        description: v.description,
+        severity: v.severity,
+        cvssScore: v.cvssScore ?? 0,
+        affectedAssets: [v.asset_id],
+        discoveredAt: new Date().toISOString(),
+        status: v.status,
+        source: v.source,
+        remediation: v.remediation,
+      }));
+
+      setVulnerabilities(formatted);
+    } catch (error) {
+      console.error("Error loading vulnerabilities:", error);
+    }
+    setLoading(false);
+  };
 
   useEffect(() => {
-    const loadVulnerabilities = async () => {
-      setLoading(true);
-      const data = await getVulnerabilities();
-      setVulnerabilities(data);
-      setLoading(false);
-    };
     loadVulnerabilities();
   }, []);
 
-  const filteredVulnerabilities = vulnerabilities.filter(vuln => {
-    if (filter === 'all') return true;
+  const filteredVulnerabilities = vulnerabilities.filter((vuln) => {
+    if (filter === "all") return true;
     return vuln.severity === filter;
   });
 
@@ -32,55 +65,31 @@ const Vulnerabilities = () => {
       </div>
 
       <div className="nex-toolbar">
+        <button className="nex-btn-secondary" onClick={loadVulnerabilities}>
+          Refresh
+        </button>
         <div className="nex-filters">
-          <button 
-            className={`nex-btn-secondary ${filter === 'all' ? 'active' : ''}`}
-            onClick={() => setFilter('all')}
-          >
-            All
-          </button>
-          <button 
-            className={`nex-btn-secondary ${filter === 'critical' ? 'active' : ''}`}
-            onClick={() => setFilter('critical')}
-          >
-            Critical
-          </button>
-          <button 
-            className={`nex-btn-secondary ${filter === 'high' ? 'active' : ''}`}
-            onClick={() => setFilter('high')}
-          >
-            High
-          </button>
-          <button 
-            className={`nex-btn-secondary ${filter === 'medium' ? 'active' : ''}`}
-            onClick={() => setFilter('medium')}
-          >
-            Medium
-          </button>
-          <button 
-            className={`nex-btn-secondary ${filter === 'low' ? 'active' : ''}`}
-            onClick={() => setFilter('low')}
-          >
-            Low
-          </button>
+          {["all", "critical", "high", "medium", "low"].map((f) => (
+            <button
+              key={f}
+              className={`nex-btn-secondary ${filter === f ? "active" : ""}`}
+              onClick={() => setFilter(f)}
+            >
+              {f.charAt(0).toUpperCase() + f.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
       {loading ? (
-        <div className="nex-card">
-          <div className="nex-loading">Loading vulnerabilities...</div>
-        </div>
+        <div className="nex-card"><div className="nex-loading">Loading vulnerabilities...</div></div>
       ) : filteredVulnerabilities.length > 0 ? (
         <VulnerabilitiesTable vulnerabilities={filteredVulnerabilities} />
       ) : (
         <div className="nex-card">
           <div className="nex-empty-state large">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" strokeWidth="2"/>
-              <path d="M9 12l2 2 4-4" strokeWidth="2"/>
-            </svg>
             <h3>No Vulnerabilities Found</h3>
-            <p>No vulnerabilities match the current filter</p>
+            <p>Run a scan first to detect vulnerabilities</p>
           </div>
         </div>
       )}

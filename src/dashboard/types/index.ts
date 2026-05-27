@@ -88,3 +88,10 @@ export interface OSINTSource {
   lastSync?: string;
   status: 'active' | 'error' | 'disabled';
 }
+
+export interface ShodanResult {
+  ip: string;
+  port: number;
+  org?: string;
+  service?: string;
+};

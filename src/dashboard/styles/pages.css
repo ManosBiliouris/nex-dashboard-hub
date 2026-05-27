@@ -464,3 +464,16 @@
     justify-content: center;
   }
 }
+
+/* Asset Details Table Labels */
+.nex-card .nex-table td:first-child {
+  color: rgba(255, 255, 255, 0.55) !important;
+  font-size: 13px;
+  width: 160px;
+  font-weight: 500;
+}
+
+.nex-card .nex-table td:last-child {
+  color: rgba(255, 255, 255, 0.95) !important;
+  font-weight: 500;
+}
