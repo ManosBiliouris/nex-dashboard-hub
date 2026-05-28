@@ -21,6 +21,7 @@ const Assets = () => {
   const [assets, setAssets] = useState<Asset[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<string>("all");
+  const [search, setSearch] = useState<string>("");
   const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();
 
@@ -72,10 +73,18 @@ const Assets = () => {
   }, []);
 
   const filteredAssets = assets.filter((asset) => {
-    if (filter === "online") return asset.status === "online";
-    if (filter === "offline") return asset.status === "offline";
-    if (filter === "high-risk") return asset.riskScore >= 50;
-    return true;
+    const matchesFilter =
+      filter === "online" ? asset.status === "online" :
+      filter === "offline" ? asset.status === "offline" :
+      filter === "high-risk" ? asset.riskScore >= 50 :
+      true;
+
+    const matchesSearch = search.trim() === "" || 
+      asset.name?.toLowerCase().includes(search.toLowerCase()) ||
+      asset.ip?.toLowerCase().includes(search.toLowerCase()) ||
+      asset.service?.toLowerCase().includes(search.toLowerCase());
+
+    return matchesFilter && matchesSearch;
   });
 
   return (
@@ -105,6 +114,13 @@ const Assets = () => {
       </div>
 
       <div className="nex-toolbar">
+        <input
+          className="nex-input"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Search by name, IP, service..."
+          style={{ width: "300px" }}
+        />
         <div className="nex-filters">
           {["all", "online", "offline", "high-risk"].map((f) => (
             <button

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/pages.css";
 
 interface ApiKeys {
@@ -9,38 +9,102 @@ interface ApiKeys {
   groq: string;
 }
 
-const Settings = () => {
-  const [keys, setKeys] = useState<ApiKeys>({
-    shodan: "••••••••••••••••",
-    zoomeye: "••••••••••••••••",
-    fofa_email: "••••••••••••••••",
-    fofa_key: "••••••••••••••••",
-    groq: "••••••••••••••••",
-  });
+type KeyStatus = "idle" | "testing" | "valid" | "invalid";
 
+const DEFAULT_KEYS: ApiKeys = {
+  shodan: "",
+  zoomeye: "",
+  fofa_email: "",
+  fofa_key: "",
+  groq: "",
+};
+
+const Settings = () => {
+  const [keys, setKeys] = useState<ApiKeys>(DEFAULT_KEYS);
   const [show, setShow] = useState<Record<string, boolean>>({});
   const [saved, setSaved] = useState(false);
+  const [statuses, setStatuses] = useState<Record<string, KeyStatus>>({});
   const [sources, setSources] = useState({
     shodan: true,
     zoomeye: false,
     fofa: false,
   });
 
+  // Load from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem("nex_api_keys");
+    if (stored) {
+      setKeys(JSON.parse(stored));
+    }
+    const storedSources = localStorage.getItem("nex_sources");
+    if (storedSources) {
+      setSources(JSON.parse(storedSources));
+    }
+  }, []);
+
   const handleSave = () => {
+    localStorage.setItem("nex_api_keys", JSON.stringify(keys));
+    localStorage.setItem("nex_sources", JSON.stringify(sources));
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
+  };
+
+  const handleReset = () => {
+    localStorage.removeItem("nex_api_keys");
+    localStorage.removeItem("nex_sources");
+    setKeys(DEFAULT_KEYS);
+    setSources({ shodan: true, zoomeye: false, fofa: false });
+    setStatuses({});
   };
 
   const toggleShow = (key: string) => {
     setShow((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
+  const testConnection = async (source: string) => {
+    setStatuses((prev) => ({ ...prev, [source]: "testing" }));
+    try {
+      const keyValue = source === "fofa_key"
+        ? keys.fofa_key
+        : source === "zoomeye"
+        ? keys.zoomeye
+        : source === "groq"
+        ? keys.groq
+        : keys.shodan;
+
+      const res = await fetch(`http://127.0.0.1:8000/credentials/test/${source}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          key: keyValue,
+          email: source === "fofa_key" ? keys.fofa_email : undefined
+        })
+      });
+      const data = await res.json();
+      setStatuses((prev) => ({ ...prev, [source]: data.valid ? "valid" : "invalid" }));
+    } catch {
+      setStatuses((prev) => ({ ...prev, [source]: "invalid" }));
+    }
+  };
+
+  const getStatusBadge = (key: string) => {
+    const status = statuses[key];
+    if (!status || status === "idle") return null;
+    if (status === "testing") return (
+      <span style={{ fontSize: "11px", color: "#eab308" }}>⏳ Testing...</span>
+    );
+    if (status === "valid") return (
+      <span style={{ fontSize: "11px", color: "#22c55e" }}>✅ Valid</span>
+    );
+    return <span style={{ fontSize: "11px", color: "#ef4444" }}>❌ Invalid</span>;
+  };
+
   const apiKeyFields = [
-    { key: "shodan", label: "Shodan API Key", description: "Required for host discovery and search" },
-    { key: "zoomeye", label: "ZoomEye API Key", description: "For ZoomEye OSINT scanning" },
-    { key: "fofa_email", label: "FOFA Email", description: "Your FOFA account email" },
-    { key: "fofa_key", label: "FOFA API Key", description: "For FOFA search queries" },
-    { key: "groq", label: "Groq API Key", description: "Powers the LLM Agent (query translation)" },
+    { key: "shodan", label: "Shodan API Key", description: "Required for host discovery and search", testKey: "shodan" },
+    { key: "zoomeye", label: "ZoomEye API Key", description: "For ZoomEye OSINT scanning", testKey: "zoomeye" },
+    { key: "fofa_email", label: "FOFA Email", description: "Your FOFA account email", testKey: null },
+    { key: "fofa_key", label: "FOFA API Key", description: "For FOFA search queries", testKey: "fofa_key" },
+    { key: "groq", label: "Groq API Key", description: "Powers the LLM Agent (query translation)", testKey: "groq" },
   ];
 
   return (
@@ -61,14 +125,16 @@ const Settings = () => {
                 <div className="nex-setting-info">
                   <div className="nex-setting-label">{field.label}</div>
                   <div className="nex-setting-description">{field.description}</div>
+                  {getStatusBadge(field.key)}
                 </div>
-                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap", justifyContent: "flex-end" }}>
                   <input
                     type={show[field.key] ? "text" : "password"}
                     className="nex-input"
                     value={keys[field.key as keyof ApiKeys]}
                     onChange={(e) => setKeys((prev) => ({ ...prev, [field.key]: e.target.value }))}
-                    style={{ width: "220px" }}
+                    placeholder="Enter API key..."
+                    style={{ width: "200px" }}
                   />
                   <button
                     className="nex-btn-secondary"
@@ -77,6 +143,15 @@ const Settings = () => {
                   >
                     {show[field.key] ? "Hide" : "Show"}
                   </button>
+                  {field.testKey && (
+                    <button
+                      className="nex-btn-secondary"
+                      onClick={() => testConnection(field.testKey!)}
+                      style={{ padding: "0.4rem 0.75rem", color: "#00d9ff", borderColor: "rgba(0,217,255,0.3)" }}
+                    >
+                      Test
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -87,7 +162,7 @@ const Settings = () => {
         <div className="nex-card">
           <h3 className="nex-card-title">OSINT Sources</h3>
           <div className="nex-settings-section">
-            {Object.entries(sources).map(([source, enabled]) => (
+            {(Object.entries(sources) as [string, boolean][]).map(([source, enabled]) => (
               <div className="nex-setting-item" key={source}>
                 <div className="nex-setting-info">
                   <div className="nex-setting-label" style={{ textTransform: "capitalize" }}>
@@ -99,14 +174,24 @@ const Settings = () => {
                     {source === "fofa" && "FOFA cyber asset search platform"}
                   </div>
                 </div>
-                <label className="nex-toggle">
-                  <input
-                    type="checkbox"
-                    checked={enabled}
-                    onChange={() => setSources((prev) => ({ ...prev, [source]: !prev[source] }))}
-                  />
-                  <span className="nex-toggle-slider"></span>
-                </label>
+                <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                  <button
+                    className="nex-btn-secondary"
+                    onClick={() => testConnection(source)}
+                    style={{ padding: "0.4rem 0.75rem", fontSize: "12px", color: "#00d9ff", borderColor: "rgba(0,217,255,0.3)" }}
+                  >
+                    {statuses[source] === "testing" ? "..." : "Test"}
+                  </button>
+                  {getStatusBadge(source)}
+                  <label className="nex-toggle">
+                    <input
+                      type="checkbox"
+                      checked={enabled}
+                      onChange={() => setSources((prev) => ({ ...prev, [source]: !prev[source] }))}
+                    />
+                    <span className="nex-toggle-slider"></span>
+                  </label>
+                </div>
               </div>
             ))}
           </div>
@@ -170,7 +255,9 @@ const Settings = () => {
         <button className="nex-btn-primary" onClick={handleSave}>
           {saved ? "✓ Saved!" : "Save Changes"}
         </button>
-        <button className="nex-btn-secondary">Reset to Defaults</button>
+        <button className="nex-btn-secondary" onClick={handleReset}>
+          Reset to Defaults
+        </button>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { DashboardStats } from "../types";
 import VulnerabilityChart from "../components/charts/VulnerabilityChart";
 import ScanTrendChart from "../components/charts/ScanTrendChart";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import "../styles/pages.css";
 
 interface RawAsset {
@@ -13,8 +14,16 @@ interface RawVulnerability {
   severity: string;
 }
 
+const RISK_COLORS = {
+  critical: "#ef4444",
+  high: "#f97316",
+  medium: "#eab308",
+  low: "#22c55e",
+};
+
 const Dashboard = () => {
   const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [riskDistribution, setRiskDistribution] = useState<{ name: string; value: number; color: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -30,10 +39,9 @@ const Dashboard = () => {
         const vulns: RawVulnerability[] = await vulnsRes.json();
 
         const totalAssets = assets.length;
-        const criticalIssues = assets.filter((a) => a.risk_level === "critical").length;
+        const criticalIssues = assets.filter((a) => a.risk_level === "critical" || a.risk_level === "high").length;
         const totalVulnerabilities = vulns.length;
 
-        // Security score: 100 - penalty per risk level
         const penalty = assets.reduce((acc, a) => {
           if (a.risk_level === "critical") return acc + 4;
           if (a.risk_level === "high") return acc + 2;
@@ -42,7 +50,21 @@ const Dashboard = () => {
         }, 0);
         const securityScore = Math.max(0, Math.round(100 - (penalty / Math.max(totalAssets, 1)) * 10));
 
-        // Build trend data (last 7 days mock progression based on real totals)
+        // Risk distribution for pie chart
+        const critical = assets.filter((a) => a.risk_level === "critical").length;
+        const high = assets.filter((a) => a.risk_level === "high").length;
+        const medium = assets.filter((a) => a.risk_level === "medium").length;
+        const low = assets.filter((a) => a.risk_level === "low").length;
+
+        const dist = [
+          { name: "Critical", value: critical, color: RISK_COLORS.critical },
+          { name: "High", value: high, color: RISK_COLORS.high },
+          { name: "Medium", value: medium, color: RISK_COLORS.medium },
+          { name: "Low", value: low, color: RISK_COLORS.low },
+        ].filter((d) => d.value > 0);
+
+        setRiskDistribution(dist);
+
         const today = new Date();
         const scansTrend = Array.from({ length: 7 }, (_, i) => {
           const d = new Date(today);
@@ -115,7 +137,7 @@ const Dashboard = () => {
           </div>
           <div className="nex-stat-content">
             <div className="nex-stat-value">{stats.criticalIssues}</div>
-            <div className="nex-stat-label">Critical Issues</div>
+            <div className="nex-stat-label">High & Critical Issues</div>
           </div>
         </div>
 
@@ -167,6 +189,86 @@ const Dashboard = () => {
         <div className="nex-card">
           <h3 className="nex-card-title">Scan Activity</h3>
           <ScanTrendChart data={stats.scansTrend} />
+        </div>
+      </div>
+
+      <div className="nex-content-grid">
+        <div className="nex-card">
+          <h3 className="nex-card-title">Risk Distribution</h3>
+          {riskDistribution.length > 0 ? (
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={riskDistribution}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={70}
+                  outerRadius={110}
+                  paddingAngle={3}
+                  dataKey="value"
+                >
+                  {riskDistribution.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: "#0a0e1a",
+                    border: "1px solid #00d9ff",
+                    borderRadius: "8px",
+                  }}
+                  labelStyle={{ color: "#ffffff", fontSize: "13px" }}
+                  itemStyle={{ color: "#ffffff", fontSize: "13px" }}
+                  formatter={(value: number, name: string) => [`${value} assets`, name]}
+                />
+                <Legend
+                  formatter={(value) => (
+                    <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "13px" }}>{value}</span>
+                  )}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="nex-empty-state" style={{ padding: "2rem" }}>
+              <p>Run a scan to see risk distribution</p>
+            </div>
+          )}
+        </div>
+
+        <div className="nex-card">
+          <h3 className="nex-card-title">Vulnerability Severity Breakdown</h3>
+          {stats.totalVulnerabilities > 0 ? (
+            <div style={{ padding: "1rem" }}>
+              {["critical", "high", "medium", "low"].map((severity) => {
+                const count = severity === "critical"
+                  ? stats.vulnerabilityTrend[6]?.critical ?? 0
+                  : severity === "high"
+                  ? stats.vulnerabilityTrend[6]?.high ?? 0
+                  : severity === "medium"
+                  ? stats.vulnerabilityTrend[6]?.medium ?? 0
+                  : stats.vulnerabilityTrend[6]?.low ?? 0;
+                const pct = stats.totalVulnerabilities > 0
+                  ? Math.round((count / stats.totalVulnerabilities) * 100)
+                  : 0;
+                const color = RISK_COLORS[severity as keyof typeof RISK_COLORS];
+                return (
+                  <div key={severity} style={{ marginBottom: "16px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
+                      <span style={{ color: "rgba(255,255,255,0.7)", fontSize: "13px", textTransform: "capitalize" }}>{severity}</span>
+                      <span style={{ color, fontSize: "13px", fontWeight: 600 }}>{count}</span>
+                    </div>
+                    <div style={{ background: "rgba(255,255,255,0.1)", borderRadius: "4px", height: "8px" }}>
+                      <div style={{ width: `${pct}%`, height: "100%", borderRadius: "4px", background: color, transition: "width 0.5s ease" }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="nex-empty-state" style={{ padding: "2rem" }}>
+              <p>Run a scan to see vulnerability breakdown</p>
+            </div>
+          )}
         </div>
       </div>
     </div>

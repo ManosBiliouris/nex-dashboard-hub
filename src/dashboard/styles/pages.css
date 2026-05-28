@@ -477,3 +477,18 @@
   color: rgba(255, 255, 255, 0.95) !important;
   font-weight: 500;
 }
+
+/* Recharts text fix */
+.recharts-legend-item-text {
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 13px !important;
+}
+
+.recharts-tooltip-label {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.recharts-cartesian-axis-tick-value {
+  fill: rgba(255, 255, 255, 0.5) !important;
+  font-size: 12px !important;
+}

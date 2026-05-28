@@ -6,10 +6,11 @@ import "../styles/pages.css";
 interface RawVulnerability {
   id: string;
   cve?: string;
+  cve_id?: string;
   title: string;
   description: string;
   severity: "critical" | "high" | "medium" | "low" | "info";
-  cvssScore?: number;
+  cvss_score?: number;
   asset_id: string;
   status: "open" | "in-progress" | "resolved" | "false-positive";
   source: string;
@@ -29,11 +30,11 @@ const Vulnerabilities = () => {
 
       const formatted: Vulnerability[] = data.map((v) => ({
         id: v.id,
-        cve: v.cve,
+        cve: v.cve_id ?? v.cve,
         title: v.title,
         description: v.description,
         severity: v.severity,
-        cvssScore: v.cvssScore ?? 0,
+        cvssScore: v.cvss_score ?? 0,
         affectedAssets: [v.asset_id],
         discoveredAt: new Date().toISOString(),
         status: v.status,
